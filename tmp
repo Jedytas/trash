@@ -50,4 +50,40 @@ INSERT INTO FuturaInfo (id_futura, id_product, quantity, price) VALUES
 (1, 1, 10, 55.50), -- 10 литров молока по 55.50
 (1, 2, 5, 30.00),  -- 5 хлебов по 30.00
 (2, 3, 7, 90.00);  -- 7 кг яблок по 90.00
+CREATE OR REPLACE FUNCTION insert_futura_info()  
+RETURNS TRIGGER AS  
+$$  
+BEGIN  
+    UPDATE Futura  
+    SET total_sum = total_sum + NEW.quantity * NEW.price  
+    WHERE id = NEW.id_futura;  
+    RETURN NEW;  
+END;  
+$$ LANGUAGE plpgsql;  
+
+
+CREATE OR REPLACE FUNCTION delete_futura_info()  
+RETURNS TRIGGER AS  
+$$  
+BEGIN  
+    UPDATE Futura  
+    SET total_sum = total_sum - OLD.quantity * OLD.price  
+    WHERE id = OLD.id_futura;  
+    RETURN OLD;  
+END;  
+$$ LANGUAGE plpgsql;  
+
+
+CREATE TRIGGER ins_futura_info  
+AFTER INSERT ON FuturaInfo  
+FOR EACH ROW  
+EXECUTE FUNCTION insert_futura_info();  
+
+CREATE TRIGGER del_futura_info  
+AFTER DELETE ON FuturaInfo  
+FOR EACH ROW  
+EXECUTE FUNCTION delete_futura_info();  
+
+
+
 
