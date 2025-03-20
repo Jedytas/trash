@@ -1,0 +1,53 @@
+CREATE TABLE Product (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    ed VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Client (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Futura (
+    id SERIAL PRIMARY KEY,
+    id_client INT NOT NULL,
+    data DATE NOT NULL DEFAULT CURRENT_DATE,
+    total_sum NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    CONSTRAINT fk_futura_client FOREIGN KEY (id_client) REFERENCES Client(id) ON DELETE CASCADE
+);
+
+CREATE TABLE FuturaInfo (
+    id SERIAL PRIMARY KEY,
+    id_futura INT NOT NULL,
+    id_product INT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
+    CONSTRAINT fk_futurainfo_futura FOREIGN KEY (id_futura) REFERENCES Futura(id) ON DELETE CASCADE,
+    CONSTRAINT fk_futurainfo_product FOREIGN KEY (id_product) REFERENCES Product(id) ON DELETE CASCADE
+);
+
+-- Добавляем товары
+INSERT INTO Product (name, ed) VALUES
+('Молоко', 'литр'),
+('Хлеб', 'шт'),
+('Яблоки', 'кг');
+
+-- Добавляем клиентов
+INSERT INTO Client (name, address, phone) VALUES
+('Иван Иванов', 'ул. Ленина, д. 1', '89001234567'),
+('ООО "Продукты"', 'пр. Победы, д. 45', '89007654321');
+
+-- Добавляем накладную
+INSERT INTO Futura (id_client) VALUES
+(1), -- для клиента Иван Иванов
+(2); -- для клиента ООО "Продукты"
+
+-- Добавляем содержимое накладной
+INSERT INTO FuturaInfo (id_futura, id_product, quantity, price) VALUES
+(1, 1, 10, 55.50), -- 10 литров молока по 55.50
+(1, 2, 5, 30.00),  -- 5 хлебов по 30.00
+(2, 3, 7, 90.00);  -- 7 кг яблок по 90.00
+
